@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+
+    <header>
+        @if (Request.IsAuthenticated)
+        {
+            @Html.ActionLink("ログアウト", "Logout", new { Controller = "Login" })
+
+            if (User.IsInRole("admin"))
+            {
+                <span>|</span>
+                @Html.ActionLink("ユーザー登録", "Create", new { Controller = "Users" })
+            }
+        }
+
+    </header>
+    <div class="container">
+        @RenderBody()
+    </div>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
