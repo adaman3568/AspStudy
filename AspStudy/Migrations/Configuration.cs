@@ -37,14 +37,6 @@ namespace AspStudy.Migrations
                 roles = new List<Role>()
             };
 
-            var hiroshi = new User()
-            {
-                id = 2,
-                UserName = "hiroshi",
-                Password = "pass",
-                roles = new List<Role>()
-            };
-
             var admin = new Role()
             {
                 Id = 1,
@@ -59,12 +51,14 @@ namespace AspStudy.Migrations
                 users = new List<User>()
             };
 
+            var memberShip = new CustomMemberShipProvider();
+
+            adminUser.Password = memberShip.GeneratePasswordHash(adminUser.UserName, adminUser.Password);
+
             adminUser.roles.Add(admin);
             admin.users.Add(adminUser);
-            hiroshi.roles.Add(user);
-            user.users.Add(hiroshi);
 
-            context.Users.AddOrUpdate(u => u.id, new User[] { adminUser, hiroshi });
+            context.Users.AddOrUpdate(u => u.id, new User[] { adminUser});
             context.Roles.AddOrUpdate(r => r.Id, new Role[] { admin, user });
         }
     }

@@ -16,6 +16,7 @@ namespace AspStudy.Controllers
     {
         private AspStudyContext db = new AspStudyContext();
 
+        readonly CustomMemberShipProvider memberShip = new CustomMemberShipProvider();
         // GET: Users
         public ActionResult Index()
         {
@@ -56,6 +57,8 @@ namespace AspStudy.Controllers
 
             if (ModelState.IsValid)
             {
+                // パスワードをHash化する。
+                user.Password = memberShip.GeneratePasswordHash(user.UserName, user.Password);
                 user.roles = roles;
                 db.Users.Add(user);
                 db.SaveChanges();
@@ -103,12 +106,19 @@ namespace AspStudy.Controllers
                 }
 
                 dbUser.UserName = user.UserName;
-                dbUser.Password = user.Password;
+
+                // 編集時に時にパスワードが変更されている場合、Hash化して登録する。
+                if (!dbUser.Password.Equals(user.Password))
+                {
+                    dbUser.Password = memberShip.GeneratePasswordHash(user.UserName, user.Password);
+                }
+
                 dbUser.roles.Clear();
                 //上記で取得したRolesをdbUserにRoleを登録
                 roles.ForEach(role => dbUser.roles.Add(role));
 
-                db.Entry(user).State = EntityState.Modified;
+                // ここを受け取ったuserで流してしまうと重複エラーになってしまう。
+                db.Entry(dbUser).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
